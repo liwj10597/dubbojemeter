@@ -43,32 +43,22 @@ public class DubboJmeterController extends AbstractJavaSamplerClient {
     }
 
     String getAddressTagInfo() throws Exception{
-        ac = getApplicationContext();
-        TagsClient tagsClient = (TagsClient) ac.getBean("tagsClient");
+        TagsClient tagsClient = getBean();
        return  tagsClient.getAddressTagInfo();
     }
 
     String getUserTagInfo() {
-        ac = getApplicationContext();
-        TagsClient tagsClient = (TagsClient) ac.getBean("tagsClient");
+        TagsClient tagsClient = getBean();
         return tagsClient.getUserTagInfo();
     }
 
 
-
-
-
-
-
-
-    public ClassPathXmlApplicationContext getApplicationContext(){
+    public TagsClient getBean(){
         if (null == ac) {
             String[] s = new String[]{"applicationContext.xml"};
             ClassPathXmlApplicationContext ac = new ClassPathXmlApplicationContext(s);
-            return ac;
-        } else {
-            return ac;
         }
+        return (TagsClient) ac.getBean("tagsClient");
     }
 
 
