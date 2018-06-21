@@ -7,25 +7,69 @@
  */
 package com.jollycorp.data.web;
 
-import com.alibaba.dubbo.config.annotation.Reference;
-import com.jollychic.data.api.userprofile.TagRiskService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.jmeter.protocol.java.sampler.AbstractJavaSamplerClient;
+import org.apache.jmeter.protocol.java.sampler.JavaSamplerContext;
+import org.apache.jmeter.samplers.SampleResult;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Component;
 
-@CrossOrigin(origins = "*")
-@Controller
-@RequestMapping("/dubbojmeter")
-public class DubboJmeterController {
-    /*@Autowired
-    private  TagRiskService tagRiskService;*/
-    /*@Reference(version = "1.0")
-    private TagRiskService tagRiskService;*/
 
-    @RequestMapping(value="/querytags", method=RequestMethod.POST)
-    @ResponseBody
-    public void querytags(String cookieId) {
 
+@Component
+public class DubboJmeterController extends AbstractJavaSamplerClient {
+
+    ClassPathXmlApplicationContext ac = null;
+
+    @Override
+    public SampleResult runTest(JavaSamplerContext javaSamplerContext) {
+        SampleResult sr = new SampleResult();
+        try {
+            sr.sampleStart();
+            // 地址标签
+            //String result = getAddressTagInfo();
+            // 用户标签
+            String result = getUserTagInfo();
+            if(result!=null){
+                sr.setSuccessful(true);
+                sr.setResponseData(result,"utf-8");
+            }else {
+                sr.setSuccessful(false);
+            }
+            sr.sampleEnd();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sr;
     }
+
+    String getAddressTagInfo() throws Exception{
+        ac = getApplicationContext();
+        TagsClient tagsClient = (TagsClient) ac.getBean("tagsClient");
+       return  tagsClient.getAddressTagInfo();
+    }
+
+    String getUserTagInfo() {
+        ac = getApplicationContext();
+        TagsClient tagsClient = (TagsClient) ac.getBean("tagsClient");
+        return tagsClient.getUserTagInfo();
+    }
+
+
+
+
+
+
+
+
+    public ClassPathXmlApplicationContext getApplicationContext(){
+        if (null == ac) {
+            String[] s = new String[]{"applicationContext.xml"};
+            ClassPathXmlApplicationContext ac = new ClassPathXmlApplicationContext(s);
+            return ac;
+        } else {
+            return ac;
+        }
+    }
+
+
 }
